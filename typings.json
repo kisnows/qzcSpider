@@ -1,0 +1,7 @@
+{
+  "globalDependencies": {
+    "jquery": "registry:dt/jquery#1.10.0+20160704162008",
+    "mongoose": "registry:dt/mongoose#4.5.4+20160807120805",
+    "selenium-webdriver": "registry:dt/selenium-webdriver#2.44.0+20160317120654"
+  }
+}

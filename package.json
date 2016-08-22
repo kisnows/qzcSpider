@@ -1,0 +1,22 @@
+{
+  "name": "qzcSpider",
+  "version": "0.5.0",
+  "description": "",
+  "main": "app.js",
+  "dependencies": {
+    "jquery": "^3.1.0",
+    "jsdom": "^9.4.2",
+    "later": "^1.2.0",
+    "mongoose": "^4.5.9",
+    "nodemailer": "^2.5.0",
+    "phantomjs-prebuilt": "^2.1.12",
+    "selenium-webdriver": "^3.0.0-beta-2",
+    "superagent": "^2.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "yq12315@gmail.com",
+  "license": "ISC"
+}
