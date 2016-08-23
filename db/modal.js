@@ -17,7 +17,11 @@ const subCommentSchema = new Schema({
 
 const commentSchema = new Schema({
   user: String,
-  content: String,
+  content: {
+    type: String,
+    required: true
+  },
+  beforeContent: [],
   date: Date,
   isDelete: {
     type: String,
@@ -81,26 +85,24 @@ commentSchema.methods.pureSave = function (comment, type = 'date') {
  */
 const Comment = db.model('Comment', commentSchema)
 
-const comment = new Comment({
-  user: '你',
-  content: '你好',
-  date: new Date(),
-  subComment: [{
-    user: 'wo',
-    content: '我',
-    date: new Date()
-  }, {
-      user: 'ta',
-      content: '2',
-      date: new Date()
-    }]
-})
-
-comment.pureSave(comment)
-  .then(data => { console.log(data) })
-  .catch(err => console.err(err))
+// const comment = new Comment({
+//   user: '你',
+//   content: '你好',
+//   date: new Date(),
+//   subComment: [{
+//     user: 'wo',
+//     content: '我',
+//     date: new Date()
+//   }, {
+//       user: 'ta',
+//       content: '2',
+//       date: new Date()
+//     }]
+// })
+//
+// comment.pureSave(comment)
+//   .then(data => { console.log(data) })
+//   .catch(err => console.err(err))
 
 
 module.exports = Comment
-
-

@@ -1,3 +1,8 @@
+/**
+ * User action of browser.
+ * @author kisnows
+ * @create 2016/8/23.
+ */
 const fs = require('fs')
 const config = require('../config')
 const webdriver = require('selenium-webdriver')
@@ -29,7 +34,7 @@ function login() {
   })
 }
 
-function goToComment(driver) {
+function goToCommentPage(driver) {
   return new Promise((resolve, reject) => {
     driver.wait(until.elementLocated(By.id('nav_bar_main')), 10000).click()
     driver.getCurrentUrl()
@@ -110,6 +115,6 @@ function isLoadingComplete(driver, resolve, reject, type) {
 
 module.exports = {
   login,
-  goToComment,
+  goToCommentPage,
   loadAllComment
 }
