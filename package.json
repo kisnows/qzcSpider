@@ -7,6 +7,7 @@
     "jquery": "^3.1.0",
     "jsdom": "^9.4.2",
     "later": "^1.2.0",
+    "moment": "^2.14.1",
     "mongoose": "^4.5.9",
     "nodemailer": "^2.5.0",
     "phantomjs-prebuilt": "^2.1.12",

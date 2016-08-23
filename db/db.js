@@ -3,7 +3,7 @@
  * @create 2016/8/22.
  */
 const mongoose = require('mongoose')
-const DB_URL = 'mongodb://localhost/qzcSpider'
+const DB_URL = require('../config').dbUrl
 mongoose.Promise = global.Promise
 mongoose.connect(DB_URL)
 const db = mongoose.connection

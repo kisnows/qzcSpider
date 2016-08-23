@@ -6,7 +6,8 @@ const db = require('./db.js')
 const Schema = db.Schema
 
 const subCommentSchema = new Schema({
-  user: String,
+  userName: String,
+  userAvatar: String,
   content: String,
   date: Date,
   isDelete: {
@@ -16,7 +17,8 @@ const subCommentSchema = new Schema({
 })
 
 const commentSchema = new Schema({
-  user: String,
+  userName: String,
+  userAvatar: String,
   content: {
     type: String,
     required: true
