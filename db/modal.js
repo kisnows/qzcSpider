@@ -17,14 +17,12 @@ const subCommentSchema = new Schema({
 })
 
 const commentSchema = new Schema({
+  _id: Number,
   userId: Number,
   userName: String,
   userAvatar: String,
   pic: String,
-  content: {
-    type: String,
-    required: true
-  },
+  content: String,
   beforeContent: [],
   date: Date,
   isDelete: {
@@ -39,17 +37,18 @@ const commentSchema = new Schema({
  * @params comment {Object} 要存储的回复
  * @params type {String} 用来判断是否存的当前回复的类型
  */
-commentSchema.methods.pureSave = function (comment, type = 'date') {
+commentSchema.methods.pureSave = function (comment, type = 'id') {
   return new Promise((resolve, reject) => {
     this.model('Comment').findOne({[type]: comment[type]}, (err, res) => {
       if (err) return reject(err)
+      //TODO 根据 ID 做更新，如果留言修改则吧以前的留言放到 beforeContent 中，删除则更新标记
       if (res !== null) {
         let resList = []
         let commentList = []
         let shouldSave = false
 
         res.subComment.forEach((rv, rk) => {
-          resList[rk] = rv[type]
+          resList[rk] = rv['content']
         })
 
         comment.subComment.forEach((v, k) => {

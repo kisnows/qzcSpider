@@ -27,7 +27,7 @@ function makeDom(htmlString) {
         let createdDate
         let tmp = new Date(0)
         file.forEach((v, k)=> {
-          createdDate = new Date(v.match(/^comment-([\d]{4}-[\d]{2}-[\d]{2}).html$/)[1])
+          createdDate = new Date(v.match(/comment-([\d]{4}-[\d]{1,2}-[\d]{2})\.html/)[1])
           if (k === 0) {
             latestFile = v
           } else {
@@ -66,17 +66,26 @@ function parse(window) {
      * @returns {{userId: *, userName, userAvatar, pic: *, content, date, subComment}}
      */
     function parseComment(comment) {
-      const imgUrlReg = /url\("\/\/(\S+)"\)/
+      const imgUrlReg = /url\("?\/\/(\S+)"?\)/
+      const _id = comment.getAttribute('data-params').match(/id=(\d+)&uin/)[1]
       const userId = comment.querySelector('.hd>.avatar').getAttribute('data-params')
       const userName = comment.querySelector('.info>.fn').textContent
       const userAvatar = (()=> {
         let imageStr = comment.querySelector('.hd>.avatar>.pic').style['background-image']
         // 格式 "url("//qzonestyle.gtimg.cn/qzone/em/recommendedImages/149.gif?pt=3&ek=1#kp=1&sce=31-0-0")"
         let url = imageStr.match(imgUrlReg)
-        return url || `https://qlogo4.store.qq.com/qzone/${userId}/${userId}/100`
+        return url ? url[1] : `https://qlogo4.store.qq.com/qzone/${userId}/${userId}/100`
+      })()
+      const pic = (()=> {
+        let imgTag = comment.querySelector('.bd>p.img')
+        let picUrl = null
+        if (imgTag) {
+          let urlStr = comment.querySelector('.bd>p.img').style['background-image']
+          picUrl = urlStr.match(imgUrlReg) ? urlStr.match(imgUrlReg)[1] : null
+        }
+        return picUrl
       })()
       const content = comment.querySelector('.bd>p').innerHTML
-      const pic = comment.querySelector('.bd>p.img') ? comment.querySelector('.bd>p.img').style['background-image'].match(imgUrlReg)[1] : null
       const date = (()=> {
         let dateText = comment.querySelector('.info .time').textContent
         let tmpDate = today
@@ -118,7 +127,7 @@ function parse(window) {
       //格式 [{userId:'60******',userName:'你的微笑',content:'你的微笑的内容'}]
       const subComment = (()=> {
         let subList = []
-        let replys = comment.querySelectorAll('.bd>.replys')
+        let replys = comment.querySelectorAll('.bd>.replys p')
         if (replys.length) {
           Array.from(replys).forEach((v, k)=> {
             //TODO 解决找不到 v.querySelector('a') 的问题
@@ -135,6 +144,7 @@ function parse(window) {
         return replys
       })()
       return {
+        _id,
         userId,
         userName,
         userAvatar,
@@ -155,7 +165,7 @@ function parse(window) {
 
 module.exports = function (htmlString) {
   return new Promise((resolve, reject)=> {
-    makeDom(htmlString.toString())
+    makeDom(htmlString)
       .then(window=>parse(window))
       .then(commentList =>resolve(commentList))
       .catch(err=>reject(err))
