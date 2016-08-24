@@ -15,6 +15,7 @@ const moment = require('moment')
  */
 function makeDom(htmlString) {
   return new Promise((resolve, reject)=> {
+    console.log('Start make dom')
     if (htmlString) {
       const jsDocument = jsdom(htmlString.toString(), {})
       const window = jsDocument.defaultView
@@ -41,6 +42,7 @@ function makeDom(htmlString) {
           const jsDocument = jsdom(data.toString(), {})
           const window = jsDocument.defaultView
           resolve(window)
+          console.log('End make dom')
         })
       })
     }
@@ -49,46 +51,33 @@ function makeDom(htmlString) {
 
 function parse(window) {
   return new Promise((resolve, reject)=> {
+    console.log('start parse')
     const today = moment(new Date())
     const document = window.document
     const commentList = []
-    // {
-    //  userId: Number,
-    //   userName: String,
-    //     userAvatar:String,
-    //   content: {
-    //   type: String,
-    //     required: true
-    // },
-    //   beforeContent: [],
-    //     date: Date,
-    //   isDelete: {
-    //   type: String,
-    // default: false
-    // },
-    //   subComment: [subCommentSchema]
-    // }
-    //TODO    解析 HTML 中的 comment 内容，并进行格式化后存入到 commentList 中
-    //TODO    处理没有 comment 时，Array.from 报错问题
-    const itemDomList = Array.from(document.querySelectorAll('#msg-list>item.dataItem'))
+    const itemDomList = Array.from(document.querySelectorAll('#msg-list>.item.dataItem') || [])
     itemDomList.forEach((v, k)=> {
-
+      commentList.push(parseComment(v))
     })
 
+    /**
+     * 解析每一条 comment ，并返回格式化后的数据
+     * @param comment {Object} 要处理的回复 DOM 对象
+     * @returns {{userId: *, userName, userAvatar, pic: *, content, date, subComment}}
+     */
     function parseComment(comment) {
       const imgUrlReg = /url\("\/\/(\S+)"\)/
-      const userId = comment.querySelector('.hd>.avatar').dataset.params
+      const userId = comment.querySelector('.hd>.avatar').getAttribute('data-params')
       const userName = comment.querySelector('.info>.fn').textContent
       const userAvatar = (()=> {
-        // TODO     用正则匹配
-        // let imageStr = comment.querySelector('.hd>.avatar>.pic').style['background-image']
+        let imageStr = comment.querySelector('.hd>.avatar>.pic').style['background-image']
         // 格式 "url("//qzonestyle.gtimg.cn/qzone/em/recommendedImages/149.gif?pt=3&ek=1#kp=1&sce=31-0-0")"
-        // let url = imageStr.match(/^url\("\/\/(\S)+"\);?$/)
-        return `https://qlogo4.store.qq.com/qzone/${userId}/${userId}/100`
+        let url = imageStr.match(imgUrlReg)
+        return url || `https://qlogo4.store.qq.com/qzone/${userId}/${userId}/100`
       })()
       const content = comment.querySelector('.bd>p').innerHTML
-      const pic = comment.querySelector('.bd>p.img').style['background-image'].match(imgUrlReg)[1]
-      const createDate = (()=> {
+      const pic = comment.querySelector('.bd>p.img') ? comment.querySelector('.bd>p.img').style['background-image'].match(imgUrlReg)[1] : null
+      const date = (()=> {
         let dateText = comment.querySelector('.info .time').textContent
         let tmpDate = today
         let date
@@ -126,23 +115,49 @@ function parse(window) {
         }
         return date
       })()
+      //格式 [{userId:'60******',userName:'你的微笑',content:'你的微笑的内容'}]
       const subComment = (()=> {
-        comment.querySelectorAll('.bd>.replys')
+        let subList = []
+        let replys = comment.querySelectorAll('.bd>.replys')
+        if (replys.length) {
+          Array.from(replys).forEach((v, k)=> {
+            //TODO 解决找不到 v.querySelector('a') 的问题
+            let userId = v.querySelector('a').getAttribute('data-params')
+            let userName = v.querySelector('a').textContent
+            let content = v.textContent.replace(userName, '')
+            subList.push({
+              userId,
+              userName,
+              content
+            })
+          })
+        }
+        return replys
       })()
+      return {
+        userId,
+        userName,
+        userAvatar,
+        pic,
+        content,
+        date,
+        subComment
+      }
     }
 
     if (!commentList.length) {
       reject('HTML Parse Error!')
     }
     resolve(commentList)
+    console.log('Parse ending')
   })
 }
 
 module.exports = function (htmlString) {
   return new Promise((resolve, reject)=> {
-    makeDom(htmlString)
+    makeDom(htmlString.toString())
       .then(window=>parse(window))
       .then(commentList =>resolve(commentList))
-      .then(err=>reject(err))
+      .catch(err=>reject(err))
   })
 }

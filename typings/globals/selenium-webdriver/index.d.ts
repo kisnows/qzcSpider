@@ -2527,7 +2527,7 @@ declare namespace webdriver {
 
 
     /**
-     * Represents a modal dialog such as {@code alert}, {@code confirm}, or
+     * Represents a Comment dialog such as {@code alert}, {@code confirm}, or
      * {@code prompt}. Provides functions to retrieve the message displayed with
      * the alert, accept or dismiss the alert, and set the response text (in the
      * case of {@code prompt}).
@@ -2597,7 +2597,7 @@ declare namespace webdriver {
     }
 
     /**
-     * An error returned to indicate that there is an unhandled modal dialog on the
+     * An error returned to indicate that there is an unhandled Comment dialog on the
      * current page.
      * @extends {bot.Error}
      */
@@ -3719,7 +3719,7 @@ declare namespace webdriver {
 
         /**
          * Schedules a command to change focus to the active alert dialog. This command
-         * will return a {@link bot.ErrorCode.NO_MODAL_DIALOG_OPEN} error if a modal
+         * will return a {@link bot.ErrorCode.NO_MODAL_DIALOG_OPEN} error if a Comment
          * dialog is not currently open.
          * @return {!webdriver.Alert} The open alert.
          */

@@ -6,10 +6,10 @@ const db = require('./db.js')
 const Schema = db.Schema
 
 const subCommentSchema = new Schema({
+  userId: Number,
   userName: String,
   userAvatar: String,
   content: String,
-  date: Date,
   isDelete: {
     type: String,
     default: false
@@ -17,8 +17,10 @@ const subCommentSchema = new Schema({
 })
 
 const commentSchema = new Schema({
+  userId: Number,
   userName: String,
   userAvatar: String,
+  pic: String,
   content: {
     type: String,
     required: true
@@ -39,7 +41,7 @@ const commentSchema = new Schema({
  */
 commentSchema.methods.pureSave = function (comment, type = 'date') {
   return new Promise((resolve, reject) => {
-    this.model('Comment').findOne({ [type]: comment[type] }, (err, res) => {
+    this.model('Comment').findOne({[type]: comment[type]}, (err, res) => {
       if (err) return reject(err)
       if (res !== null) {
         let resList = []
