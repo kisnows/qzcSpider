@@ -37,34 +37,25 @@ const commentSchema = new Schema({
  * @params comment {Object} 要存储的回复
  * @params type {String} 用来判断是否存的当前回复的类型
  */
-commentSchema.methods.pureSave = function (comment, type = 'id') {
+commentSchema.methods.pureSave = function (comment) {
   return new Promise((resolve, reject) => {
-    this.model('Comment').findOne({[type]: comment[type]}, (err, res) => {
+    this.model('Comment').findById(comment.id, (err, res) => {
       if (err) return reject(err)
-      //TODO 根据 ID 做更新，如果留言修改则吧以前的留言放到 beforeContent 中，删除则更新标记
+      //DONE 根据 ID 做更新，如果留言修改则吧以前的留言放到 beforeContent 中
       if (res !== null) {
-        let resList = []
-        let commentList = []
         let shouldSave = false
 
-        res.subComment.forEach((rv, rk) => {
-          resList[rk] = rv['content']
-        })
-
-        comment.subComment.forEach((v, k) => {
-          commentList.push(v[type])
-          if (resList.indexOf(v[type]) === -1) {
-            res.subComment.push(v)
+        if (res.content !== comment.content) {
+          res.beforeContent.push(comment.content)
+          shouldSave = true
+        }
+        if (res.subComment === comment.subComment) {
+          if(!res === Object.assign(res, comment)){
             shouldSave = true
           }
-        })
-
-        resList.forEach((v, k) => {
-          if (commentList.indexOf(v) === -1) {
-            res.subComment[k].isDelete = true
-            shouldSave = true
-          }
-        })
+        } else {
+          updateSubComment()
+        }
 
         shouldSave ?
           res.save((err, comment) => {
@@ -72,6 +63,34 @@ commentSchema.methods.pureSave = function (comment, type = 'id') {
             resolve(comment)
           })
           : resolve(comment)
+
+        /**
+         * 更新 subComment，如果有新的 comment 则添加进来，如果有删除掉的则标记为已删除
+         */
+        function updateSubComment(){
+          let resSubCommentList = []
+          let saveSubCommentList = []
+          res.subComment.forEach((v, k) => {
+            resSubCommentList[k] = v
+          })
+          comment.subComment.forEach((v, k) => {
+            saveSubCommentList[k] = v
+          })
+          // 判断 subComment 是否有删掉的
+          resSubCommentList.forEach((v, k) => {
+            if (saveSubCommentList.indexOf(v) === -1) {
+              res.subComment[k].isDelete = true
+              shouldSave = true
+            }
+          })
+          // 判断是否添加了新的 subComment
+          saveSubCommentList.forEach((v, k) => {
+            if (resSubCommentList.indexOf(v) === -1) {
+              res.subComment.push(comment.subComment[k])
+              shouldSave = true
+            }
+          })
+        }
       } else {
         comment.save((err, comment) => {
           if (err) return reject(err)

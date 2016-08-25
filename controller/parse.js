@@ -130,7 +130,6 @@ function parse(window) {
         let replys = comment.querySelectorAll('.bd>.replys p')
         if (replys.length) {
           Array.from(replys).forEach((v, k)=> {
-            //TODO 解决找不到 v.querySelector('a') 的问题
             let userId = v.querySelector('a').getAttribute('data-params')
             let userName = v.querySelector('a').textContent
             let content = v.textContent.replace(userName, '')
