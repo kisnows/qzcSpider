@@ -34,3 +34,6 @@ mock/upload/*
 config.js
 data
 .idea
+commentList.json
+log.json
+log.txt

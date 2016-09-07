@@ -5,7 +5,7 @@
  */
 const fs = require('fs')
 
-const BA = require('./controller/browserAction')
+const BA = require('./browserAction')
 let driverIn
 let fileName = `./data/comment-${new Date().getFullYear()}-${new Date().getMonth()}-${new Date().getDate()}.html`
 module.exports = ()=> {

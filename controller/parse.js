@@ -90,37 +90,32 @@ function parse(window) {
         let dateText = comment.querySelector('.info .time').textContent
         let tmpDate = today
         let date
-        switch (dateText) {
-          case dateText.length < 6:
-            date = moment()
-            break
-          case dateText.includes('昨天'):
-            dateText = dateText.replace('昨天', '')
-            date = tmpDate.subtract(1, 'days')
-              .set({
-                'hour': dateText.split(':')[0],
-                'minute': dateText.split(':')[1]
-              }).toDate()
-            break
-          case dateText.includes('前天'):
-            dateText = dateText.replace('前天', '')
-            date = tmpDate.subtract(2, 'days')
-              .set({
-                'hour': dateText.split(':')[0],
-                'minute': dateText.split(':')[1]
-              }).toDate()
-            break
-          case dateText.includes('月'):
-            let matches = /(\d{1,2})月(\d{1,2})日\s+(\d{1,2}):(\d{1,2})/.exec(dateText)
-            date = tmpDate.set({
-              'year': matches[1],
-              'month': matches[2] - 1,
-              'hour': matches[3],
-              'minute': matches[4]
-            }).toString()
-            break
-          default:
-            date = new Date(dateText)
+        if (dateText.length < 6) {
+          date = moment()
+        } else if (dateText.includes('昨天')) {
+          dateText = dateText.replace('昨天', '')
+          date = tmpDate.subtract(1, 'days')
+            .set({
+              'hour': dateText.split(':')[0],
+              'minute': dateText.split(':')[1]
+            }).toDate()
+        } else if (dateText.includes('前天')) {
+          dateText = dateText.replace('前天', '')
+          date = tmpDate.subtract(2, 'days')
+            .set({
+              'hour': dateText.split(':')[0],
+              'minute': dateText.split(':')[1]
+            }).toDate()
+        } else if (dateText.includes('月')) {
+          let matches = /(\d{1,2})月(\d{1,2})日\s+(\d{1,2}):(\d{1,2})/.exec(dateText)
+          date = tmpDate.set({
+            'year': matches[1],
+            'month': matches[2] - 1,
+            'hour': matches[3],
+            'minute': matches[4]
+          }).toDate()
+        } else {
+          date = new Date(dateText)
         }
         return date
       })()
@@ -133,6 +128,7 @@ function parse(window) {
             let userId = v.querySelector('a').getAttribute('data-params')
             let userName = v.querySelector('a').textContent
             let content = v.textContent.replace(userName, '')
+            console.log('contentj', content)
             subList.push({
               userId,
               userName,
@@ -140,7 +136,7 @@ function parse(window) {
             })
           })
         }
-        return replys
+        return subList
       })()
       return {
         _id,
