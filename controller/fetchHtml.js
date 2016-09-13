@@ -7,7 +7,7 @@ const fs = require('fs')
 
 const BA = require('./browserAction')
 let driverIn
-let fileName = `./data/comment-${new Date().getFullYear()}-${new Date().getMonth()}-${new Date().getDate()}.html`
+let fileName = `./data/comment-${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate()}.html`
 module.exports = ()=> {
   return new Promise((resolve, reject)=> {
     BA.login()

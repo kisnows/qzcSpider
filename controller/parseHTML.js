@@ -1,5 +1,5 @@
 /**
- * Parse Html and get Comment List.
+ * Parse Html and return a Promise can that get Comment List.
  * @author kisnows
  * @create 2016/8/23.
  */
@@ -21,12 +21,14 @@ function makeDom(htmlString) {
       const window = jsDocument.defaultView
       resolve(window)
     } else {
+      //根据文件名，找到最新的文件（comment-2016-8-21.html）
       fs.readdir('./data', (err, file)=> {
         if (err) return false
         let latestFile = file.length ? file[0] : null
         let createdDate
         let tmp = new Date(0)
         file.forEach((v, k)=> {
+          //拿到创建时间
           createdDate = new Date(v.match(/comment-([\d]{4}-[\d]{1,2}-[\d]{2})\.html/)[1])
           if (k === 0) {
             latestFile = v
@@ -49,6 +51,11 @@ function makeDom(htmlString) {
   })
 }
 
+/**
+ * 解析 HTML 字符串，返回一个 Promise，用来获得一个包含所有 comment 的列表
+ * @param window
+ * @returns {Promise}
+ */
 function parse(window) {
   return new Promise((resolve, reject)=> {
     console.log('start parse')
@@ -56,7 +63,7 @@ function parse(window) {
     const document = window.document
     const commentList = []
     const itemDomList = Array.from(document.querySelectorAll('#msg-list>.item.dataItem') || [])
-    itemDomList.forEach((v, k)=> {
+    itemDomList.forEach((v)=> {
       commentList.push(parseComment(v))
     })
 
@@ -93,7 +100,7 @@ function parse(window) {
         if (dateText.length < 6) {
           date = moment()
         } else if (dateText.includes('昨天')) {
-          dateText = dateText.replace('昨天', '')
+          dateText = dateText.replace('昨天', '').trim()
           date = tmpDate.subtract(1, 'days')
             .set({
               'hour': dateText.split(':')[0],
@@ -101,7 +108,7 @@ function parse(window) {
             }).toDate()
         } else if (dateText.includes('前天')) {
           dateText = dateText.replace('前天', '')
-          date = tmpDate.subtract(2, 'days')
+          date = tmpDate.subtract(2, 'days').trim()
             .set({
               'hour': dateText.split(':')[0],
               'minute': dateText.split(':')[1]
@@ -124,7 +131,7 @@ function parse(window) {
         let subList = []
         let replys = comment.querySelectorAll('.bd>.replys p')
         if (replys.length) {
-          Array.from(replys).forEach((v, k)=> {
+          Array.from(replys).forEach((v)=> {
             let userId = v.querySelector('a').getAttribute('data-params')
             let userName = v.querySelector('a').textContent
             let content = v.textContent.replace(userName, '')
@@ -162,7 +169,13 @@ module.exports = function (htmlString) {
   return new Promise((resolve, reject)=> {
     makeDom(htmlString)
       .then(window=>parse(window))
-      .then(commentList =>resolve(commentList))
+      .then(commentList => {
+        let fileName = `./data/comment-${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate()}.json`
+        fs.writeFile(fileName, JSON.stringify(commentList), err=> {
+          console.error(err)
+        })
+        resolve(commentList)
+      })
       .catch(err=>reject(err))
   })
 }

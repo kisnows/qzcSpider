@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
   }
 })
 
-module.exports = (contents) => {
+module.exports = (content) => {
   transporter.sendMail({
     from: email.user,
     to: email.toUser,
