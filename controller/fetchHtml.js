@@ -20,12 +20,12 @@ module.exports = ()=> {
       .then(resource => {
         fs.writeFile(fileName, resource,
           err=> {
-            if (err) return reject(err)
+            if (err) return reject(`fetchHtml.js 23 error: ${err}`)
             driverIn.quit()
             resolve(resource)
           })
       })
-      .catch(err => reject(err))
+      .catch(err => reject(`fetchHtml.js 28 error: ${err}`))
   })
 }
 

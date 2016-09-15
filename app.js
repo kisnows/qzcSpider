@@ -6,17 +6,28 @@ const moment = require('moment')
 const start = moment()
 
 function main() {
+
+
   fetchHTML()
+  // readSpecialFile('./data/comment-2016-8-21.html')
     .then(data=>storeComment(data))
     .then(()=> {
       const end = moment()
       console.log(`Spend ${start.from(end)}`)
     })
-    .catch(err=>console.error(err))
+    .catch(err=>console.error(`app.js 18, ${err}`))
 }
 
 main()
 
+function readSpecialFile(path) {
+  return new Promise((resolve, reject)=> {
+    fs.readFile(path, (err, data)=> {
+      if (err) return reject(`app.js 26 error:${err}`)
+      resolve(data)
+    })
+  })
+}
 
 /**
  * 存储 comment 到数据库
@@ -28,7 +39,7 @@ function storeComment(data) {
       .then(commentList=> {
         let fileName = `./data/comment-${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate()}.json`
         fs.writeFile(fileName, JSON.stringify(commentList), err=> {
-          console.error(err)
+          console.error(`app.js 42, writeFile error: ${err}`)
         })
         commentList.forEach((v, k)=> {
           const comment = new Comment(v)
@@ -40,9 +51,9 @@ function storeComment(data) {
                 process.exit()
               }
             })
-            .catch(err=>reject(err))
+            .catch(err=>reject(`app.js 54 error,${err}`))
         })
       })
-      .catch(err=>reject(err))
+      .catch(err=>reject(`app.js 57 error,${err}`))
   })
 }

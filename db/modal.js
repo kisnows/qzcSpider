@@ -40,34 +40,42 @@ const commentSchema = new Schema({
 commentSchema.methods.pureSave = function (comment) {
   return new Promise((resolve, reject) => {
     this.model('Comment').findById(comment.id, (err, res) => {
-      if (err) return reject(err)
+      if (err) return reject(`modal.js 43 error: ${err}`)
       //DONE 根据 ID 做更新，如果留言修改则吧以前的留言放到 beforeContent 中
+      if (res.content === '睡不着') {
+        debugger
+      }
+      let shouldSave = false
       if (res !== null) {
-        let shouldSave = false
-
         if (res.content !== comment.content) {
           res.beforeContent.push(comment.content)
           shouldSave = true
         }
-        if (res.subComment === comment.subComment) {
-          if(!res === Object.assign(res, comment)){
-            shouldSave = true
-          }
-        } else {
-          updateSubComment()
+        if (res.date !== comment.date) {
+          res.date = comment.date
+          shouldSave = true
         }
+        updateSubComment()
 
-        shouldSave ?
+        if (shouldSave) {
           res.save((err, comment) => {
-            if (err) return reject(err)
+            if (err) return reject(`modal.js 62 ${res} save err: ${err}`)
             resolve(comment)
           })
-          : resolve(comment)
+        } else {
+          resolve(comment)
+        }
+        // shouldSave ?
+        //   res.update((err, comment) => {
+        //     if (err) return reject(err)
+        //     resolve(comment)
+        //   })
+        //   : resolve(comment)
 
         /**
          * 更新 subComment，如果有新的 comment 则添加进来，如果有删除掉的则标记为已删除
          */
-        function updateSubComment(){
+        function updateSubComment() {
           let resSubCommentList = []
           let saveSubCommentList = []
           res.subComment.forEach((v, k) => {
@@ -78,22 +86,38 @@ commentSchema.methods.pureSave = function (comment) {
           })
           // 判断 subComment 是否有删掉的
           resSubCommentList.forEach((v, k) => {
-            if (saveSubCommentList.indexOf(v) === -1) {
+            let isDelete = true
+            for (const sv of saveSubCommentList) {
+              //TODO 判断对象是否相等,暂时用 comment.content 来代替
+              if (sv.content === v.content && sv.userId === v.userId) {
+                isDelete = false
+                break
+              }
+            }
+            if (isDelete) {
               res.subComment[k].isDelete = true
               shouldSave = true
             }
           })
           // 判断是否添加了新的 subComment
           saveSubCommentList.forEach((v, k) => {
-            if (resSubCommentList.indexOf(v) === -1) {
-              res.subComment.push(comment.subComment[k])
+            let isHave = true
+            //TODO 判断对象是否相等,暂时用 comment.content 来代替
+            for (const sv of resSubCommentList) {
+              if (sv.content !== v.content && sv.userId !== v.userId) {
+                isHave = false
+                break
+              }
+            }
+            if (!isHave) {
+              res.subComment.push(saveSubCommentList[k])
               shouldSave = true
             }
           })
         }
       } else {
         comment.save((err, comment) => {
-          if (err) return reject(err)
+          if (err) return reject(`modal.js 120 error:${err}`)
           resolve(comment)
         })
       }

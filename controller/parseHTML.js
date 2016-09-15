@@ -40,7 +40,7 @@ function makeDom(htmlString) {
           }
         })
         fs.readFile(path.join(`${__dirname}`, '../', `/data/${latestFile}`), (err, data)=> {
-          if (err) return reject(err)
+          if (err) return reject(`parseHTML.js 43 error: ${err}`)
           const jsDocument = jsdom(data.toString(), {})
           const window = jsDocument.defaultView
           resolve(window)
@@ -116,8 +116,9 @@ function parse(window) {
         } else if (dateText.includes('月')) {
           let matches = /(\d{1,2})月(\d{1,2})日\s+(\d{1,2}):(\d{1,2})/.exec(dateText)
           date = tmpDate.set({
-            'year': matches[1],
-            'month': matches[2] - 1,
+            'year': new Date().getFullYear(),
+            'month': matches[1] - 1,
+            'day': matches[2],
             'hour': matches[3],
             'minute': matches[4]
           }).toDate()
@@ -135,7 +136,6 @@ function parse(window) {
             let userId = v.querySelector('a').getAttribute('data-params')
             let userName = v.querySelector('a').textContent
             let content = v.textContent.replace(userName, '')
-            console.log('contentj', content)
             subList.push({
               userId,
               userName,
@@ -172,10 +172,10 @@ module.exports = function (htmlString) {
       .then(commentList => {
         let fileName = `./data/comment-${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate()}.json`
         fs.writeFile(fileName, JSON.stringify(commentList), err=> {
-          console.error(err)
+          console.error(`fetchHtml.js 175 error: ${err}`)
         })
         resolve(commentList)
       })
-      .catch(err=>reject(err))
+      .catch(err=>reject(`fetchHtml.js 179 error: ${err}`))
   })
 }

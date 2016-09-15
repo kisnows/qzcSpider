@@ -42,7 +42,7 @@ function goToCommentPage(driver) {
         try {
           startTime = url.match(/starttime=(\d{1,})/)[2]
         } catch (err) {
-          console.log(err)
+          reject(err)
         }
         return Promise.resolve()
       })
