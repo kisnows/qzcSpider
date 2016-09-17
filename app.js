@@ -8,8 +8,8 @@ const start = moment()
 function main() {
 
 
-  fetchHTML()
-  // readSpecialFile('./data/comment-2016-8-21.html')
+  // fetchHTML()
+  readSpecialFile('./data/comment-2016-9-17.html')
     .then(data=>storeComment(data))
     .then(()=> {
       const end = moment()
@@ -28,7 +28,16 @@ function readSpecialFile(path) {
     })
   })
 }
-
+/**
+ * 写入格式化后的 JSON 数据
+ * @param commentList
+ */
+function writeParseFile(commentList) {
+  let fileName = `./data/comment-${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate()}.json`
+  fs.writeFile(fileName, JSON.stringify(commentList), err=> {
+    if (err) console.error(`app.js, writeFile error: ${err}`)
+  })
+}
 /**
  * 存储 comment 到数据库
  * @param data
@@ -37,10 +46,7 @@ function storeComment(data) {
   return new Promise((resolve, reject)=> {
     getCommentList(data)
       .then(commentList=> {
-        let fileName = `./data/comment-${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate()}.json`
-        fs.writeFile(fileName, JSON.stringify(commentList), err=> {
-          console.error(`app.js 42, writeFile error: ${err}`)
-        })
+        writeParseFile(commentList)
         commentList.forEach((v, k)=> {
           const comment = new Comment(v)
           comment.pureSave(comment)

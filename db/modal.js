@@ -2,7 +2,7 @@
  * @author kisnows
  * @create 2016/8/22.
  */
-const db = require('./db.js')
+const db = require('./dbConfig.js')
 const Schema = db.Schema
 
 const subCommentSchema = new Schema({
@@ -42,11 +42,8 @@ commentSchema.methods.pureSave = function (comment) {
     this.model('Comment').findById(comment.id, (err, res) => {
       if (err) return reject(`modal.js 43 error: ${err}`)
       //DONE 根据 ID 做更新，如果留言修改则吧以前的留言放到 beforeContent 中
-      if (res.content === '睡不着') {
-        debugger
-      }
-      let shouldSave = false
       if (res !== null) {
+        let shouldSave = false
         if (res.content !== comment.content) {
           res.beforeContent.push(comment.content)
           shouldSave = true
@@ -65,12 +62,6 @@ commentSchema.methods.pureSave = function (comment) {
         } else {
           resolve(comment)
         }
-        // shouldSave ?
-        //   res.update((err, comment) => {
-        //     if (err) return reject(err)
-        //     resolve(comment)
-        //   })
-        //   : resolve(comment)
 
         /**
          * 更新 subComment，如果有新的 comment 则添加进来，如果有删除掉的则标记为已删除

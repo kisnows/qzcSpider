@@ -81,7 +81,7 @@ function parse(window) {
         let imageStr = comment.querySelector('.hd>.avatar>.pic').style['background-image']
         // 格式 "url("//qzonestyle.gtimg.cn/qzone/em/recommendedImages/149.gif?pt=3&ek=1#kp=1&sce=31-0-0")"
         let url = imageStr.match(imgUrlReg)
-        return url ? url[1] : `https://qlogo4.store.qq.com/qzone/${userId}/${userId}/100`
+        return url ? url[1] : `qlogo4.store.qq.com/qzone/${userId}/${userId}/100`
       })()
       const pic = (()=> {
         let imgTag = comment.querySelector('.bd>p.img')
@@ -107,8 +107,8 @@ function parse(window) {
               'minute': dateText.split(':')[1]
             }).toDate()
         } else if (dateText.includes('前天')) {
-          dateText = dateText.replace('前天', '')
-          date = tmpDate.subtract(2, 'days').trim()
+          dateText = dateText.replace('前天', '').trim()
+          date = tmpDate.subtract(2, 'days')
             .set({
               'hour': dateText.split(':')[0],
               'minute': dateText.split(':')[1]
@@ -172,7 +172,7 @@ module.exports = function (htmlString) {
       .then(commentList => {
         let fileName = `./data/comment-${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate()}.json`
         fs.writeFile(fileName, JSON.stringify(commentList), err=> {
-          console.error(`fetchHtml.js 175 error: ${err}`)
+          if (err) console.error(`fetchHtml.js 175 error: ${err}`)
         })
         resolve(commentList)
       })
